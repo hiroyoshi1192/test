@@ -1,0 +1,119 @@
+<html lang="ja"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Googleマップ高評価レストランランダム表示</title>
+    <style>
+        /* CSSコード */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        #btn-generate {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #restaurants {
+            margin-top: 20px;
+        }
+
+        .restaurant {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .restaurant-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .restaurant-rating {
+            margin-bottom: 5px;
+        }
+
+        .restaurant-address {
+            margin-bottom: 5px;
+        }
+
+        .restaurant-link {
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Googleマップ高評価レストランランダム表示</h1>
+        <p>現在地周辺の高評価レストランをランダムに5店舗表示します。</p>
+        <button id="btn-generate">表示</button>
+        <div id="restaurants"></div>
+
+        <script>
+            // JavaScriptコード
+            const btnGenerate = document.getElementById('btn-generate');
+            const restaurantsContainer = document.getElementById('restaurants');
+
+            btnGenerate.addEventListener('click', () => {
+                // 現在地の取得
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Google Places APIの検索
+                    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=5000&type=restaurant&key=AIzaSyCAXTSUaIbG5ZBlLghWgtWpHYJb-LT_T_w&sort_by=rating`;
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const results = data.results;
+                            const randomRestaurants = [];
+
+                            // ランダムに5店舗選択
+                            for (let i = 0; i < 5; i++) {
+                                const randomIndex = Math.floor(Math.random() * results.length);
+                                const restaurant = results[randomIndex];
+                                randomRestaurants.push(restaurant);
+                            }
+
+                            // レストラン情報をHTMLに生成
+                            let html = '';
+                            for (const restaurant of randomRestaurants) {
+                                html += `
+                                    <div class="restaurant">
+                                        <div class="restaurant-name">${restaurant.name}</div>
+                                        <div class="restaurant-rating">評価：${restaurant.rating} 星</div>
+                                        <div class="restaurant-address">${restaurant.vicinity}</div>
+                                        <a href="${restaurant.url}" class="restaurant-link">Googleマップ</a>
+                                    </div>
+                                `;
+                            }
+
+                            restaurantsContainer.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('エラーが発生しました。');
+                        });
+                });
+            });
+        </script>
+    </div>
+
+
+</body></html>
